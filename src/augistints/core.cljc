@@ -17,6 +17,9 @@
 (def inline-def-gen
   ag/inline-def-gen)
 
+(def make-inline-def-with-meta-gen
+  ag/make-inline-def-with-meta-gen)
+
 (def prepend-to-defn-let-bodies
   ae/prepend-to-defn-let-bodies)
 
@@ -48,6 +51,7 @@
    '[augistints.let :as al]
    '[augistints.names :as an]
    '[augistints.samples :as as]
+   '[rewrite-clj.node :as rn]
    '[rewrite-clj.zip :as rz]
    :reload-all)
 
@@ -303,6 +307,32 @@
 
   ;; try out meta data node
 
+  (def a-form-with-meta-str
+    "^{:a-key 1} (+ 1 1)")
+
+  (let [meta-zloc (rz/of-string a-form-with-meta-str)
+        map-zloc (-> meta-zloc
+                     rz/down)
+        form-zloc (-> meta-zloc
+                      rz/down
+                      rz/right)]
+    (println (str "map: " (rz/sexpr map-zloc)))
+    (println (str "keys: " (keys (rz/sexpr map-zloc))))
+    (println (str "form: " (rz/sexpr form-zloc))))
+
+  ;; what's a good way to add meta data?
+  (def a-form-without-meta-str
+    "(+ 1 1)")
+
+  (let [root-zloc (rz/of-string a-form-without-meta-str)
+        ;; suppose there is already a zloc
+        ;; is there no better way than this for adding metadata?
+        with-meta-zloc (rz/of-string (str "^{:test 1} "
+                                          (rz/string root-zloc)))]
+    (println (str "without metadata: " (rz/string root-zloc)))
+    (println (str "with metadata: " (rz/string with-meta-zloc))))
+
+  ;; rich comment block example
   (def comment-form-with-meta-idea-str
     (str "(comment\n"
          "\n"

@@ -114,6 +114,20 @@
                        (cons 'do a-defs-list))
                      (fn-def-maps studied))})))
 
+(defn make-inline-def-with-meta-gen
+  [meta-map]
+  (fn [studied]
+    (let [fn-name (rz/string (:fn-name studied))]
+      (case (:arity studied)
+        :arity-1
+        {:arity-1 (with-meta (cons 'do (fn-def-map studied))
+                    meta-map)}
+        :arity-n
+        {:arity-n (map (fn [a-defs-list]
+                         (with-meta (cons 'do a-defs-list)
+                           meta-map))
+                       (fn-def-maps studied))}))))
+
 (comment
 
   (require

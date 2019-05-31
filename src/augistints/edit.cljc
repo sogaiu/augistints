@@ -156,4 +156,10 @@
       (ae/prepend-to-defn-body ag/inline-def-gen)
       print)
 
+  (let [inline-def-with-meta-gen
+        (ag/make-inline-def-with-meta-gen {:test 1})]
+    (-> as/ma-d-form-str
+        (ae/prepend-to-defn-body inline-def-with-meta-gen)
+        print))
+
  )
