@@ -8,8 +8,8 @@
  {
   base64-clj {:mvn/version "0.1.1"}
   cljfmt {:mvn/version "0.6.4"}
-  rewrite-clj {:git/url "https://github.com/lread/rewrite-cljs-playground.git"
-               :sha "69ef791b949eac1e3cebf6cec154bcda0a109edc"}
+  rewrite-clj {:git/url "https://github.com/sogaiu/rewrite-clj.git"
+               :sha "3bf6023adf43338e3c8437ca78d859dca7d68ec0"}
   zprint {:mvn/version "0.4.15"}
  }
 }
