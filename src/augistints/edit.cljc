@@ -122,13 +122,11 @@
       (nth 1))
 
   (-> as/d-with-l-form-str
-      (ae/prepend-to-defn-let-bodies ag/let-log-bindings-gen)
-      '[x 1
-        y 2
-        z 3])
-  
+    (ae/prepend-to-defn-let-bodies ag/log-let-bindings-gen)
+    print)
+
   (-> as/d-with-l-form-str
-      (ae/prepend-to-defn-let-bodies ag/let-log-bindings-gen)
+      (ae/prepend-to-defn-let-bodies ag/log-let-bindings-gen)
       print)
 
   (-> as/docstring-defn-str
