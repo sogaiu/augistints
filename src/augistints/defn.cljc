@@ -1,5 +1,6 @@
 (ns augistints.defn
   (:require
+   [augistints.utils :as au]
    [rewrite-cljc.zip :as rz]))
 
 (alias 'ad 'augistints.defn)
@@ -27,31 +28,30 @@
          :zloc (rz/down zloc)}
         {:keys [zloc] :as m}
         (merge m
-               (if (some #{'defn 'defn-}
-                         [(rz/sexpr zloc)])
+               (if (au/defn? zloc)
                  {:zloc (rz/right zloc)}
                  (throw (#?(:cljs js/Error. :default Exception.)
                          (str "Expected defn or defn-, but got: "
-                              (rz/sexpr zloc)))))
+                              (rz/string zloc)))))
                {:form-type zloc})
         {:keys [zloc] :as m}
         (merge m
-               (if (symbol? (rz/sexpr zloc))
+               (if (au/symbol? zloc)
                  {:zloc (rz/right zloc)}
                  (throw (#?(:cljs js/Error. :default Exception.)
                          (str "Expected symbol, but got: "
-                              (rz/sexpr zloc)))))
+                              (rz/string zloc)))))
                {:fn-name zloc})
         {:keys [zloc] :as m}
         (merge m
-               (if (string? (rz/sexpr zloc))
+               (if (au/string? zloc)
                  {:found-docstring true
                   :zloc (rz/right zloc)}
                  {:found-docstring false})
                {:docstring zloc})
         {:keys [zloc] :as m}
         (merge m
-               (if (map? (rz/sexpr zloc))
+               (if (rz/map? zloc)
                  {:found-meta true
                   :zloc (rz/right zloc)}
                  {:found-meta false})
@@ -73,13 +73,14 @@
 ;;  :found-prepost ...
 ;;  :zloc ...}
 (defn study-params+body
+  "Return map based on studying params+body."
   [{:keys [zloc] :as studying}]
   (let [{:keys [zloc] :as m} {:params zloc
                               :zloc (rz/right zloc)}
         {:keys [zloc] :as m}
         (merge studying
                m
-               (if (and (map? (rz/sexpr zloc))
+               (if (and (rz/map? zloc)
                         (not (nil? (rz/right zloc))))
                  {:found-prepost true
                   :zloc (rz/right zloc)}
@@ -99,6 +100,7 @@
            {:attr-map-2 tail})))
 
 (defn study-defn
+  "Return map based on studying a zipper for a defn-form."
   [d-zloc]
   (let [{:keys [zloc] :as studying} (study-defn-to-tail d-zloc)
         arity (fn-tail-arity studying)]
@@ -156,10 +158,9 @@
       an/names-from-params)
 
   ;; insertion tests
-  
   (def insertion-form
     (list 'tap> :wave))
-  
+
   ;; ends up with metadata
   (-> (:body as/studied)
       (rz/insert-left '(tap> :smile))
@@ -190,7 +191,7 @@
   (-> (:body as/studied)
       (rz/insert-left log-form)
       rz/root-string)
-  
+
   ;; XXX: test this
   ^{:ael/want
 "(defn my-meta-pre-post-fn
