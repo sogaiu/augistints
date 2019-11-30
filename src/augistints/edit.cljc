@@ -2,8 +2,8 @@
   (:require
    [augistints.defn :as ad]
    [augistints.let :as al]
-   [rewrite-clj.node :as rn]
-   [rewrite-clj.zip :as rz]))
+   [rewrite-cljc.node :as rn]
+   [rewrite-cljc.zip :as rz]))
 
 (alias 'ae 'augistints.edit)
 
@@ -103,7 +103,7 @@
    '[augistints.format :as af]
    '[augistints.gen :as ag]
    '[augistints.samples :as as]
-   '[rewrite-clj.zip :as rz]
+   '[rewrite-cljc.zip :as rz]
    :reload-all)
 
   (-> as/ma-d-form-str

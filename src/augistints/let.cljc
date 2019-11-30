@@ -1,6 +1,6 @@
 (ns augistints.let
   (:require
-   [rewrite-clj.zip :as rz]))
+   [rewrite-cljc.zip :as rz]))
 
 (alias 'al 'augistints.let)
 

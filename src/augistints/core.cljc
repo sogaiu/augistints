@@ -51,8 +51,8 @@
    '[augistints.let :as al]
    '[augistints.names :as an]
    '[augistints.samples :as as]
-   '[rewrite-clj.node :as rn]
-   '[rewrite-clj.zip :as rz]
+   '[rewrite-cljc.node :as rn]
+   '[rewrite-cljc.zip :as rz]
    :reload-all)
 
   (do

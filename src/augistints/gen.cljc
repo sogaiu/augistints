@@ -1,7 +1,7 @@
 (ns augistints.gen
   (:require
    [augistints.names :as an]
-   [rewrite-clj.zip :as rz]))
+   [rewrite-cljc.zip :as rz]))
 
 (alias 'ag 'augistints.gen)
 
@@ -134,7 +134,7 @@
    '[augistints.gen :as ag]
    '[augistints.let :as al]
    '[augistints.samples :as as]
-   '[rewrite-clj.zip :as rz]
+   '[rewrite-cljc.zip :as rz]
    :reload-all)
 
   ^{:ael/want :arity-1}

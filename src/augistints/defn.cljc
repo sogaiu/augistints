@@ -1,6 +1,6 @@
 (ns augistints.defn
   (:require
-   [rewrite-clj.zip :as rz]))
+   [rewrite-cljc.zip :as rz]))
 
 (alias 'ad 'augistints.defn)
 
@@ -136,8 +136,8 @@
    '[augistints.gen :as ag]
    '[augistints.names :as an]
    '[augistints.samples :as as]
-   '[rewrite-clj.node :as rn]
-   '[rewrite-clj.zip :as rz]
+   '[rewrite-cljc.node :as rn]
+   '[rewrite-cljc.zip :as rz]
    :reload-all)
 
   ^{:ael/want '#{:arity :body :docstring :fn-name :form-type

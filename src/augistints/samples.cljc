@@ -1,7 +1,7 @@
 (ns augistints.samples
   (:require
    [augistints.defn :as ad]
-   [rewrite-clj.zip :as rz]))
+   [rewrite-cljc.zip :as rz]))
 
 (alias 'as 'augistints.samples)
 
