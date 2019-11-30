@@ -1,30 +1,31 @@
 (ns augistints.let
   (:require
+   [augistints.utils :as au]
    [rewrite-cljc.zip :as rz]))
 
 (alias 'al 'augistints.let)
 
 (defn study-let
+  "Return map based on studying a zipper for a let-form."
   [l-zloc]
   (let [{:keys [zloc] :as m}
         {:root-zloc l-zloc
          :zloc (rz/down l-zloc)}
         {:keys [zloc] :as m}
         (merge m
-               (if (some #{'let}
-                         [(rz/sexpr zloc)])
+               (if (au/let? zloc)
                  {:zloc (rz/right zloc)}
                  (throw (#?(:cljs js/Error. :default Exception.)
                          (str "Expected let, but got: "
-                              (rz/sexpr zloc)))))
+                              (rz/string zloc)))))
                {:form-type zloc})
         {:keys [zloc] :as m}
         (merge m
-               (if (vector? (rz/sexpr zloc))
+               (if (rz/vector? zloc)
                  {:zloc (rz/right zloc)}
                  (throw (#?(:cljs js/Error. :default Exception.)
                          (str "Expected vector, but got: "
-                              (rz/sexpr zloc)))))
+                              (rz/string zloc)))))
                {:bindings zloc})]
     (assoc m
            :body zloc)))
@@ -34,7 +35,7 @@
   (require
    '[augistints.let :as al]
    '[augistints.samples :as as]
-   '[rewrite-clj.zip :as rz]
+   '[rewrite-cljc.zip :as rz]
    :reload-all)
 
   ^{:ael/want '[x 1 y 2 z (+ 1 2)]}
