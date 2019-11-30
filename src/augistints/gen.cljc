@@ -1,6 +1,7 @@
 (ns augistints.gen
   (:require
    [augistints.names :as an]
+   [augistints.utils :as au]
    [rewrite-cljc.zip :as rz]))
 
 (alias 'ag 'augistints.gen)
@@ -52,13 +53,15 @@
                      (list 'tap> a-log-map))
                    (fn-log-maps studied))}))
 
+;; XXX: not sure about the following comment
 ;; XXX: be defensive by checking for existence of :fn-name
 (defn log-map
   [{:keys [fn-name form-type bindings] :as studied}]
-  (let [names (->> bindings
+  (let [s-bindings (au/sanitize-bindings bindings)
+        names (->> s-bindings
                    rz/sexpr
                    an/names-from-bindings)]
-    {:fn-name fn-name
+    {:fn-name (rz/string fn-name) ;; XXX: was fn-name
      :form-type (rz/string form-type)
      :params-map (an/names-map-from-names names)}))
 
@@ -66,6 +69,7 @@
   [studied]
   (list 'tap> (log-map studied)))
 
+;; XXX: not straightforward to make use of sexpr safely
 ;; XXX: check
 (defn interleave-bindings-gen
   [{:keys [fn-name form-type bindings] :as studied}]
@@ -146,17 +150,17 @@
   ^{:ael/want false}
   (:found-docstring as/studied)
 
-  ^{:ael/want '{:fn-name my-meta-pre-post-fn,
-                :form-type defn,
+  ^{:ael/want '{:fn-name "my-meta-pre-post-fn",
+                :form-type "defn",
                 :params-map {:f f, :x x}}
     :ael/name "generate map for logging a single arity defn's arguments"}
   (ag/fn-log-map as/studied)
 
-  ^{:ael/want '({:fn-name my-meta-pre-post-fn,
-                 :form-type defn,
+  ^{:ael/want '({:fn-name "my-meta-pre-post-fn",
+                 :form-type "defn",
                  :params-map {:f f, :x x}}
-                {:fn-name my-meta-pre-post-fn,
-                 :form-type defn,
+                {:fn-name "my-meta-pre-post-fn",
+                 :form-type "defn",
                  :params-map {}})
     :ael/name "generate map for logging a multiple arity defn's arguments"}
   (ag/fn-log-maps as/ma-studied)
@@ -195,5 +199,10 @@
                             (def x x))
                           (do))}}
   (ag/inline-def-gen as/ma-studied)
-  
+
+  ^{:ael/want {:fn-name nil
+               :form-type "let"
+               :params-map {:x x, :y y, :z z}}}
+  (ag/log-map as/l-c-studied)
+
   )
