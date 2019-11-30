@@ -1,6 +1,7 @@
 (ns augistints.samples
   (:require
    [augistints.defn :as ad]
+   [augistints.let :as al]
    [rewrite-cljc.zip :as rz]))
 
 (alias 'as 'augistints.samples)
@@ -29,6 +30,14 @@
 
 (def l-form-str
   (str "(let [x 1\n"
+       "      y 2\n"
+       "      z (+ 1 2)]\n"
+       "  (println (str \"hi \" x)))\n"))
+
+(def l-c-form-str
+  (str "(let [;; hi\n"
+       "      x 1\n"
+       "      ;;there\n"
        "      y 2\n"
        "      z (+ 1 2)]\n"
        "  (println (str \"hi \" x)))\n"))
@@ -125,10 +134,22 @@
   (rz/of-string as/d-form-str))
 
 (def studied
-  (ad/study-defn d-zloc))
+  (ad/study-defn as/d-zloc))
 
 (def ma-d-zloc
   (rz/of-string as/ma-d-form-str))
 
 (def ma-studied
-  (ad/study-defn ma-d-zloc))
+  (ad/study-defn as/ma-d-zloc))
+
+(def destr-zloc
+  (rz/of-string as/ampersand-in-params-defn-str))
+
+(def destr-studied
+  (ad/study-defn as/destr-zloc))
+
+(def l-c-zloc
+  (rz/of-string as/l-c-form-str))
+
+(def l-c-studied
+  (al/study-let l-c-zloc))
