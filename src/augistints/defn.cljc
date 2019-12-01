@@ -28,7 +28,7 @@
          :zloc (rz/down zloc)}
         {:keys [zloc] :as m}
         (merge m
-               (if (au/defn? zloc)
+               (if (au/defn? zloc) ; XXX: could be meta...
                  {:zloc (rz/right zloc)}
                  (throw (#?(:cljs js/Error. :default Exception.)
                          (str "Expected defn or defn-, but got: "
@@ -36,7 +36,7 @@
                {:form-type zloc})
         {:keys [zloc] :as m}
         (merge m
-               (if (au/symbol? zloc)
+               (if (au/symbol? zloc) ; XXX: could be meta, no?
                  {:zloc (rz/right zloc)}
                  (throw (#?(:cljs js/Error. :default Exception.)
                          (str "Expected symbol, but got: "

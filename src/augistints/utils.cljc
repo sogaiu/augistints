@@ -101,6 +101,7 @@
                  (= 'let (symbol-value f-node)))
         true))))
 
+;; XXX: it's possible to have metadata preceding 'defn...
 (defn defn?
   [zloc]
   (let [a-node (rz/node zloc)]
