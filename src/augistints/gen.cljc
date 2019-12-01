@@ -6,9 +6,16 @@
 
 (alias 'ag 'augistints.gen)
 
+(defn fn-name-str
+  [fn-name]
+  (when fn-name
+    (if (string? fn-name)
+      fn-name
+      (rz/string fn-name))))
+
 (defn log-defn-entry-gen
   [studied]
-  (let [fn-name (rz/string (:fn-name studied))]
+  (let [fn-name (fn-name-str (:fn-name studied))]
     (case (:arity studied)
       :arity-1
       {:arity-1 `(println (str "entered: " ~fn-name))}
@@ -24,7 +31,7 @@
                   rz/sexpr
                   an/names-from-params)]
     ;; XXX: string or keyword or something else?
-    {:fn-name (rz/string fn-name)
+    {:fn-name (fn-name-str fn-name)
      :form-type (rz/string form-type)
      :params-map (an/names-map-from-names names)}))
 
@@ -32,7 +39,7 @@
 (defn fn-log-maps
   [{:keys [fn-name form-type paramss] :as studied}]
   ;; XXX: string or keyword or something else?
-  (let [fn-name (rz/string fn-name)
+  (let [fn-name (fn-name-str fn-name)
         form-type (rz/string form-type)]
     (map (fn [params]
            (let [names (-> params
@@ -61,7 +68,7 @@
         names (->> s-bindings
                    rz/sexpr
                    an/names-from-bindings)]
-    {:fn-name (rz/string fn-name) ;; XXX: was fn-name
+    {:fn-name (fn-name-str fn-name)
      :form-type (rz/string form-type)
      :params-map (an/names-map-from-names names)}))
 
@@ -73,16 +80,17 @@
 ;; XXX: check
 (defn interleave-bindings-gen
   [{:keys [fn-name form-type bindings] :as studied}]
-  (reduce (fn [acc [destr-form init-expr]]
-            (let [names (an/names-from-destr-form destr-form)
-                  log-info {:fn-name fn-name
-                            :form-type (rz/string form-type)
-                            :binding-map (an/names-map-from-names names)}]
-              (conj acc
-                    destr-form init-expr
-                    '_ (list 'tap> log-info))))
-          []
-          (partition 2 (rz/sexpr bindings))))
+  (let [fn-name (fn-name-str fn-name)]
+    (reduce (fn [acc [destr-form init-expr]]
+              (let [names (an/names-from-destr-form destr-form)
+                    log-info {:fn-name fn-name
+                              :form-type (rz/string form-type)
+                              :binding-map (an/names-map-from-names names)}]
+                (conj acc
+                  destr-form init-expr
+                  '_ (list 'tap> log-info))))
+            []
+            (partition 2 (rz/sexpr bindings)))))
 
 ;; single-arity only
 (defn fn-def-map
@@ -109,28 +117,26 @@
 
 (defn inline-def-gen
   [studied]
-  (let [fn-name (rz/string (:fn-name studied))]
-    (case (:arity studied)
-      :arity-1
-      {:arity-1 (cons 'do (fn-def-map studied))}
-      :arity-n
-      {:arity-n (map (fn [a-defs-list]
-                       (cons 'do a-defs-list))
-                     (fn-def-maps studied))})))
+  (case (:arity studied)
+    :arity-1
+    {:arity-1 (cons 'do (fn-def-map studied))}
+    :arity-n
+    {:arity-n (map (fn [a-defs-list]
+                     (cons 'do a-defs-list))
+                (fn-def-maps studied))}))
 
 (defn make-inline-def-with-meta-gen
   [meta-map]
   (fn [studied]
-    (let [fn-name (rz/string (:fn-name studied))]
-      (case (:arity studied)
-        :arity-1
-        {:arity-1 (with-meta (cons 'do (fn-def-map studied))
-                    meta-map)}
-        :arity-n
-        {:arity-n (map (fn [a-defs-list]
-                         (with-meta (cons 'do a-defs-list)
-                           meta-map))
-                       (fn-def-maps studied))}))))
+    (case (:arity studied)
+      :arity-1
+      {:arity-1 (with-meta (cons 'do (fn-def-map studied))
+                  meta-map)}
+      :arity-n
+      {:arity-n (map (fn [a-defs-list]
+                       (with-meta (cons 'do a-defs-list)
+                         meta-map))
+                  (fn-def-maps studied))})))
 
 (comment
 
