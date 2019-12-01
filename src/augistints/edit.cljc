@@ -117,10 +117,6 @@
       (nth 1))
 
   (-> as/d-with-l-form-str
-    (ae/prepend-to-defn-let-bodies ag/log-let-bindings-gen)
-    print)
-
-  (-> as/d-with-l-form-str
       (ae/prepend-to-defn-let-bodies ag/log-let-bindings-gen)
       print)
 
