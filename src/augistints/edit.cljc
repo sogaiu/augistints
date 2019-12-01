@@ -2,6 +2,7 @@
   (:require
    [augistints.defn :as ad]
    [augistints.let :as al]
+   [augistints.utils :as au]
    [rewrite-cljc.node :as rn]
    [rewrite-cljc.zip :as rz]))
 
@@ -55,7 +56,7 @@
   (let [d-studied (-> defn-str
                       rz/of-string
                       ad/study-defn)
-        fn-name (rz/string (:fn-name d-studied))
+        fn-name (:fn-name d-studied)
         prepend-to-body
         (fn [zloc]
           (let [studied (al/study-let zloc)
@@ -66,10 +67,7 @@
                 (rz/insert-left ins-form)
                 (rz/insert-left (rn/newlines 1)))))]
     (-> (rz/of-string defn-str)
-        (rz/prewalk #(and (rz/list? %)
-                          (> (rz/length %) 1)
-                          (= (first (rz/sexpr %))
-                             'let))
+        (rz/prewalk au/let-form?
                     prepend-to-body)
         rz/root-string)))
 
@@ -78,7 +76,7 @@
   (let [d-studied (-> defn-str
                       rz/of-string
                       ad/study-defn)
-        fn-name (rz/string (:fn-name d-studied))
+        fn-name (:fn-name d-studied)
         replace-bindings
         (fn [zloc]
           (let [studied (al/study-let zloc)
@@ -88,10 +86,7 @@
             (-> (:bindings studied)
                 (rz/replace new-bindings-form))))]
     (-> (rz/of-string defn-str)
-        (rz/prewalk #(and (rz/list? %)
-                          (> (rz/length %) 1)
-                          (= (first (rz/sexpr %))
-                             'let))
+        (rz/prewalk au/let-form?
                     replace-bindings)
         rz/root-string)))
 
