@@ -4,7 +4,7 @@
    [augistints.edit :as ae]
    [augistints.format :as af]
    [augistints.gen :as ag]))
-  
+
 (def prepend-to-defn-body
   ae/prepend-to-defn-body)
 
@@ -59,9 +59,11 @@
     (require '[cognitect.rebl :as cr])
     (cr/ui))
 
+  (require '[clojure.datafy :as cd])
+
   (defn send-to-rebl
     [code]
-    (when-let [d-val (clojure.datafy/datafy code)]
+    (when-let [d-val (cd/datafy code)]
       (cr/submit 'code d-val)))
 
   ;; XXX: cljs has no slurp?
@@ -85,7 +87,7 @@
 
   (count @memory)
 
-  (-> (nth @memory 20)
+  (-> (nth @memory 14)
       rz/string)
   
   (map (fn [a-zloc]
@@ -336,7 +338,7 @@
   (def comment-form-with-meta-idea-str
     (str "(comment\n"
          "\n"
-         "  ^{:expected 0 :name \"simple subtraction\"}\n"
+         "  ^{:ael/expected 0 :ael/name \"simple subtraction\"}\n"
          "  (- 1 1)\n"
          ")\n"))
 
@@ -352,6 +354,90 @@
     (println (str "map: " (rz/sexpr map-zloc)))
     (println (str "keys: " (keys (rz/sexpr map-zloc))))
     (println (str "form: " (rz/sexpr form-zloc))))
+
+  ;; removal based on detecting particular metadata
+
+  ;; this doesn't work because apparently, the 2nd function argument to prewalk
+  ;; must modify the passed in zloc for prewalk to work.
+  (-> (rz/of-string comment-form-with-meta-idea-str)
+      (rz/prewalk (fn [zloc]
+                    (when (= (rz/tag zloc) :meta)
+                      (let [map-zloc (rz/down zloc)]
+                        (contains? (rz/sexpr map-zloc)
+                                   :ael/expected))))
+                  (fn [zloc]
+                    (-> zloc
+                        rz/down
+                        rz/right)))
+      rz/string)
+
+  ;; this works because the 2nd function argument to prewalk
+  ;; modifies (using rz/edit) the zloc passed in to it
+  (-> (rz/of-string comment-form-with-meta-idea-str)
+      (rz/prewalk (fn [zloc]
+                    (when (= (rz/tag zloc) :meta)
+                      (let [map-zloc (rz/down zloc)]
+                        (contains? (rz/sexpr map-zloc)
+                                   :ael/expected))))
+                  (fn [zloc]
+                    (rz/edit zloc
+                             (fn [expr]
+                               (with-meta expr {})))))
+      rz/string)
+
+  ;; lread two examples that help understand prewalk -- note that in
+  ;; the examples, prewalk returns the same zloc it is passed.  this
+  ;; is because for prewalk to return something different, it's second
+  ;; function argument must modify the zloc that is passed in to
+  ;; it (as mentioned above).
+  (def ex2 "[1 2 3 [4 5]]")
+
+  ;; skips 3 -- so return value of 2nd fn to prewalk affects traversal
+  (-> (rz/of-string ex2)
+      (rz/prewalk (fn [zloc]
+                    (println (rz/string zloc))
+                    (= (rz/string zloc) "2"))
+                  (fn [zloc]
+                    (println "-->" (rz/node (rz/right zloc)))
+                    (rz/right zloc)))
+      (rz/string))
+
+  ;; skips 3 (slightly edited)
+  (-> (rz/of-string ex2)
+      (rz/prewalk (fn [zloc]
+                    (println "walking: " (rz/string zloc))
+                    (= (rz/string zloc) "2"))
+                  (fn [zloc]
+                    (rz/right zloc)))
+      (rz/string))
+
+  ;; lread's alternative
+  (-> (rz/of-string comment-form-with-meta-idea-str)
+      (rz/prewalk (fn [zloc]
+                    (when (= (rz/tag zloc) :meta)
+                      (let [map-zloc (rz/down zloc)]
+                        (contains? (rz/sexpr map-zloc)
+                                   :ael/expected))))
+                  (fn [zloc]
+                    (rz/replace zloc
+                                (-> zloc
+                                    rz/down
+                                    rz/right
+                                    rz/node))))
+      rz/string)
+
+  ;; borkdude's alternative -- slightly edited for comparability
+  ;; this approach bypasses the confusion by avoiding prewalk altogether
+  (-> (loop [zloc (rz/of-string comment-form-with-meta-idea-str)]
+        (if (rz/end? zloc) (rz/root zloc)
+            (let [t (rz/tag zloc)]
+              (if (= :meta t)
+                (recur (-> zloc
+                           rz/splice
+                           rz/remove))
+                (recur (rz/next zloc))))))
+      (rz/edn rz/down)
+      rz/string)
 
   ;; reader macro -- specifically reader conditional
 
