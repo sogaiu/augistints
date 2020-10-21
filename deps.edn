@@ -6,10 +6,11 @@
 
  :deps
  {
-  base64-clj {:mvn/version "0.1.1"}
-  cljfmt {:mvn/version "0.6.4"}
-  rewrite-cljc {:git/url "https://github.com/lread/rewrite-cljc-playground.git"
-                :sha "81a28d11e9a0bb9136dde4f91a680d1b2fd8dd4d"}
-  zprint {:mvn/version "0.4.15"}
+  base64-clj/base64-clj {:mvn/version "0.1.1"}
+  cljfmt/cljfmt {:mvn/version "0.6.4"}
+  rewrite-cljc/rewrite-cljc
+  {:git/url "https://github.com/lread/rewrite-cljc-playground.git"
+   :sha "a5a5a8480f8158221fd603537cda51debdd6df00"}
+  zprint/zprint {:mvn/version "1.0.1"}
  }
 }
